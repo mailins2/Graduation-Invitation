@@ -16,6 +16,8 @@ const submitButton = form ? form.querySelector('button[type="submit"]') : null;
 const MUSIC_TARGET_VOLUME = 0.7;
 const MUSIC_FADE_DURATION = 5000;
 const PRESENTATION_SCROLL_SPEED = 60;
+const PRESENTATION_SCROLL_DELAY = 3000;
+const CONFETTI_DELAY = 2000;
 let volumeFadeFrame = 0;
 
 const WISHES_API_URL = 'https://script.google.com/macros/s/AKfycbz7Ms0kww6hckwfG-tES6nCyJRUxf6oNdlAqMo8nOhfAmdnDH8PDIwafykYryntOQyc/exec';
@@ -38,11 +40,16 @@ function createConfetti() {
     const delay = (Math.random() * 6).toFixed(2);
     const drift = `${(Math.random() * 180 - 90).toFixed(2)}px`;
     const left = (Math.random() * 100).toFixed(2);
+    const isStar = Math.random() < 0.3;
 
     piece.className = 'confetti';
     piece.style.left = `${left}%`;
     piece.style.width = `${size}px`;
     piece.style.height = `${(+size * 1.8).toFixed(2)}px`;
+    if (isStar) {
+      piece.classList.add('confetti-star');
+      piece.style.height = `${size}px`;
+    }
     piece.style.background = palette[Math.floor(Math.random() * palette.length)];
     piece.style.animationDuration = `${duration}s`;
     piece.style.animationDelay = `${delay}s`;
@@ -165,6 +172,8 @@ if (openButton) {
     openButton.disabled = true;
     if (intro) intro.classList.add('hidden');
     playMusicWithFade(true);
+    setTimeout(createConfetti, CONFETTI_DELAY);
+    await new Promise((resolve) => setTimeout(resolve, PRESENTATION_SCROLL_DELAY));
     await presentSections();
   });
 }
@@ -394,5 +403,3 @@ if (form) {
     }
   });
 }
-
-createConfetti();
