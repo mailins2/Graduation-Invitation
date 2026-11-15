@@ -737,7 +737,7 @@ textarea {
   font-weight: 500;
 }
 
-.wishes {
+.guest-responses {
   width: min(640px, 100%);
   margin: 24px auto 0;
   padding: 22px;
@@ -747,7 +747,47 @@ textarea {
   box-shadow: 0 12px 24px rgba(63, 44, 36, 0.05);
 }
 
-.wishes h3 {
+.response-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  background: rgba(81, 62, 52, 0.06);
+  border-radius: 999px;
+}
+
+.response-tab {
+  flex: 1;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+.response-tab[aria-selected="true"] {
+  background: rgba(255,255,255,0.88);
+  color: var(--blue-deep);
+  box-shadow: 0 4px 12px rgba(63, 44, 36, 0.08);
+}
+
+.response-tab:focus-visible {
+  outline: 3px solid rgba(122, 166, 197, 0.55);
+  outline-offset: 3px;
+}
+
+.response-panel {
+  padding-top: 22px;
+}
+
+.response-panel[hidden] {
+  display: none;
+}
+
+.response-panel h3 {
   margin: 0;
   text-align: center;
   font-family: 'Cormorant Garamond', serif;
@@ -756,11 +796,30 @@ textarea {
   color: var(--blue-deep);
 }
 
-.wishes-status {
+.wishes-status,
+.attendees-status {
   margin: 14px 0 0;
   text-align: center;
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.attendees-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.attendees-list li {
+  padding: 9px 14px;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(81, 62, 52, 0.08);
+  border-radius: 999px;
+  color: var(--blue-deep);
 }
 
 .wishes-list {

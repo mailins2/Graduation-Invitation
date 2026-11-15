@@ -209,10 +209,23 @@
       <p class="status" id="formStatus" aria-live="polite"></p>
     </form>
 
-    <section class="wishes reveal" aria-labelledby="wishesTitle">
-      <h3 id="wishesTitle">Lời chúc từ mọi người</h3>
-      <p class="wishes-status" id="wishesStatus" aria-live="polite">Đang tải lời chúc...</p>
-      <ul class="wishes-list" id="wishesList"></ul>
+    <section class="guest-responses reveal" aria-label="Lời chúc và người tham dự">
+      <div class="response-tabs" role="tablist" aria-label="Nội dung phản hồi">
+        <button class="response-tab" id="wishesTab" type="button" role="tab" aria-selected="true" aria-controls="wishesPanel" tabindex="0">Lời chúc</button>
+        <button class="response-tab" id="attendeesTab" type="button" role="tab" aria-selected="false" aria-controls="attendeesPanel" tabindex="-1">Người tham dự</button>
+      </div>
+
+      <section class="response-panel" id="wishesPanel" role="tabpanel" aria-labelledby="wishesTab">
+        <h3 id="wishesTitle">Lời chúc từ mọi người</h3>
+        <p class="wishes-status" id="wishesStatus" aria-live="polite">Đang tải lời chúc...</p>
+        <ul class="wishes-list" id="wishesList"></ul>
+      </section>
+
+      <section class="response-panel" id="attendeesPanel" role="tabpanel" aria-labelledby="attendeesTab" hidden>
+        <h3 id="attendeesTitle">Sẽ gặp bạn tại buổi lễ</h3>
+        <p class="attendees-status" id="attendeesStatus" aria-live="polite">Đang tải danh sách...</p>
+        <ul class="attendees-list" id="attendeesList"></ul>
+      </section>
     </section>
 
     <footer class="foot">

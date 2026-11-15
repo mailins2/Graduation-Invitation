@@ -11,6 +11,9 @@ const formStatus = document.getElementById('formStatus');
 const confettiLayer = document.getElementById('confettiLayer');
 const wishesStatus = document.getElementById('wishesStatus');
 const wishesList = document.getElementById('wishesList');
+const attendeesStatus = document.getElementById('attendeesStatus');
+const attendeesList = document.getElementById('attendeesList');
+const responseTabs = Array.from(document.querySelectorAll('[role="tab"][aria-controls]'));
 const submitButton = form ? form.querySelector('button[type="submit"]') : null;
 
 const MUSIC_TARGET_VOLUME = 0.7;
@@ -26,6 +29,33 @@ const GOOGLE_FORM_ENTRIES = {
   message: 'entry.1221149099',
   attendance: 'entry.420995005'
 };
+
+function activateResponseTab(selectedTab) {
+  responseTabs.forEach((tab) => {
+    const isSelected = tab === selectedTab;
+    const panel = document.getElementById(tab.getAttribute('aria-controls'));
+    tab.setAttribute('aria-selected', String(isSelected));
+    tab.tabIndex = isSelected ? 0 : -1;
+    if (panel) panel.hidden = !isSelected;
+  });
+}
+
+responseTabs.forEach((tab, index) => {
+  tab.addEventListener('click', () => activateResponseTab(tab));
+  tab.addEventListener('keydown', (event) => {
+    let nextIndex;
+    if (event.key === 'ArrowRight') nextIndex = (index + 1) % responseTabs.length;
+    else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + responseTabs.length) % responseTabs.length;
+    else if (event.key === 'Home') nextIndex = 0;
+    else if (event.key === 'End') nextIndex = responseTabs.length - 1;
+    else return;
+
+    event.preventDefault();
+    const nextTab = responseTabs[nextIndex];
+    activateResponseTab(nextTab);
+    nextTab.focus();
+  });
+});
 
 function createConfetti() {
   if (!confettiLayer) return;
@@ -300,18 +330,46 @@ function renderWishes(wishes) {
   wishesStatus.textContent = `${wishes.length} lời chúc`;
 }
 
+function renderAttendees(attendees) {
+  if (!attendeesList || !attendeesStatus) return;
+
+  attendeesList.textContent = '';
+  if (!Array.isArray(attendees)) {
+    attendeesStatus.textContent = 'Danh sách tham dự chưa được cập nhật. Vui lòng thử lại sau.';
+    return;
+  }
+
+  if (attendees.length === 0) {
+    attendeesStatus.textContent = 'Chưa có xác nhận tham dự nào.';
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  attendees.forEach((attendee) => {
+    const item = document.createElement('li');
+    item.textContent = attendee.name || 'Khách mời';
+    fragment.appendChild(item);
+  });
+
+  attendeesList.appendChild(fragment);
+  attendeesStatus.textContent = `${attendees.length} người sẽ tham dự`;
+}
+
 async function loadWishes() {
   if (!wishesList || !wishesStatus) return;
   if (!WISHES_API_URL) {
     wishesStatus.textContent = 'Chưa kết nối nơi lưu lời chúc.';
+    renderAttendees(null);
     return;
   }
 
   try {
     const result = await getWishes();
     renderWishes(result.wishes);
+    renderAttendees(result.attendees);
   } catch (error) {
     wishesStatus.textContent = 'Không tải được lời chúc. Vui lòng thử tải lại trang.';
+    if (attendeesStatus) attendeesStatus.textContent = 'Không tải được danh sách tham dự. Vui lòng thử tải lại trang.';
     console.error('Failed to load shared wishes:', error);
   }
 }
@@ -343,7 +401,7 @@ async function submitGoogleForm(name, message, attendance) {
       && wish.timestamp >= submittedAt - 10000
     ));
     if (result.totalResponses > previous.totalResponses && newWishIsVisible) {
-      return result.wishes;
+      return result;
     }
     await new Promise((resolve) => setTimeout(resolve, 800));
   }
@@ -380,7 +438,9 @@ if (form) {
     if (submitButton) submitButton.disabled = true;
     try {
       formStatus.textContent = 'Đang gửi...';
-      renderWishes(await submitGoogleForm(name, message, attendance));
+      const result = await submitGoogleForm(name, message, attendance);
+      renderWishes(result.wishes);
+      renderAttendees(result.attendees);
 
       formStatus.textContent = attendance === 'yes'
         ? `Cảm ơn ${name}! Mình sẽ chờ bạn đến dự cùng buổi lễ.`

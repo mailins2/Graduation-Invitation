@@ -29,15 +29,20 @@ function readResponses_() {
     .find((candidate) => candidate.getSheetId() === RESPONSE_SHEET_GID);
 
   if (!sheet) throw new Error('The linked Google Form response tab was not found.');
-  if (sheet.getLastRow() < 2) return { ok: true, totalResponses: 0, wishes: [] };
+  if (sheet.getLastRow() < 2) {
+    return { ok: true, totalResponses: 0, wishes: [], attendees: [] };
+  }
 
   const values = sheet.getDataRange().getValues();
   const headers = values[0].map((value) => String(value).trim());
   const nameColumn = headers.indexOf('Tên của bạn');
   const messageColumn = headers.indexOf('Lời chúc');
+  const attendanceColumn = headers.findIndex((header) => (
+    header === 'Bạn sẽ tham gia chứ?' || header === 'Bạn sẽ tham dự chứ?'
+  ));
 
-  if (nameColumn < 0 || messageColumn < 0) {
-    throw new Error('The response sheet must contain "Tên của bạn" and "Lời chúc" columns.');
+  if (nameColumn < 0 || messageColumn < 0 || attendanceColumn < 0) {
+    throw new Error('The response sheet must contain "Tên của bạn", "Lời chúc", and "Bạn sẽ tham dự chứ?" columns.');
   }
 
   const responses = values.slice(1).filter((row) => row.some((value) => String(value).trim()));
@@ -49,8 +54,12 @@ function readResponses_() {
       timestamp: row[0] instanceof Date ? row[0].getTime() : new Date(row[0]).getTime()
     }))
     .reverse();
+  const attendees = responses
+    .filter((row) => String(row[attendanceColumn] || '').trim() === 'Có, mình sẽ đến chung vui!')
+    .map((row) => ({ name: String(row[nameColumn] || '').trim() || 'Khách mời' }))
+    .reverse();
 
-  return { ok: true, totalResponses: responses.length, wishes };
+  return { ok: true, totalResponses: responses.length, wishes, attendees };
 }
 
 function jsonOutput_(payload) {
